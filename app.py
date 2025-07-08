@@ -38,6 +38,26 @@ app = Flask(__name__)
 # Use env variable or directly paste your TomTom API key here
 API_KEY = os.getenv("TOMTOM_API_KEY")
 
+def get_fare(distance, template):
+    fare = 0
+    if template == "verdi":
+        if distance <= 15000:
+            fare = 1.5
+        elif distance > 15000 and distance <= 20000:
+            fare = 2
+        elif distance > 20000 and distance <= 25000:
+            fare = 2.5 
+        elif distance > 25000 and distance <= 45000:
+            fare = 4
+        elif distance > 45000 and distance <= 60000:
+            fare = 6
+        elif distance > 60000:
+            fare = 6 + (0.25 * (distance - 60))
+        
+        return fare
+    else:
+        return 'Invalid template'
+
 
 @app.route("/api/distance", methods=["GET"])
 def get_distance():
@@ -47,6 +67,7 @@ def get_distance():
         pickup_lng = request.args.get("pickup_lng", type=float)
         dropoff_lat = request.args.get("dropoff_lat", type=float)
         dropoff_lng = request.args.get("dropoff_lng", type=float)
+        template = request.args.get("dropoff_lng", type=str)
 
         # Validate input
         if None in [pickup_lat, pickup_lng, dropoff_lat, dropoff_lng]:
@@ -70,7 +91,9 @@ def get_distance():
         distance = summary["lengthInMeters"]
         time = summary["travelTimeInSeconds"]
 
-        return jsonify({"distance_meters": distance, "time_seconds": time})
+        final_fare = get_fare(distance, template)
+
+        return jsonify({"distance_meters": distance, "time_seconds": time, "Fare": final_fare})
 
     except requests.exceptions.HTTPError as http_err:
         return jsonify({"error": f"HTTP error occurred: {http_err}"}), 502
