@@ -52,7 +52,7 @@ def get_fare(distance, template):
         elif distance > 45000 and distance <= 60000:
             fare = 6
         elif distance > 60000:
-            fare = 6 + (0.25 * (distance - 60))
+            fare = 6 + (0.25 * (distance - 60000))
         
         return fare
     else:
@@ -67,7 +67,7 @@ def get_distance():
         pickup_lng = request.args.get("pickup_lng", type=float)
         dropoff_lat = request.args.get("dropoff_lat", type=float)
         dropoff_lng = request.args.get("dropoff_lng", type=float)
-        template = request.args.get("dropoff_lng", type=str)
+        template = request.args.get("template")
 
         # Validate input
         if None in [pickup_lat, pickup_lng, dropoff_lat, dropoff_lng]:
